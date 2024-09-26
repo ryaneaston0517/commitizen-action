@@ -96,8 +96,11 @@ CURRENT_BRANCH="$(git branch --show-current)"
 INPUT_BRANCH="${INPUT_BRANCH:-$CURRENT_BRANCH}"
 INPUT_REPOSITORY="${INPUT_REPOSITORY:-$GITHUB_REPOSITORY}"
 
+# Use INPUT_GIT_NAME if it's set, otherwise default to GITHUB_ACTOR
+DERIVED_ACTOR=${INPUT_GIT_NAME:-$GITHUB_ACTOR}
+
 echo "Repository: ${INPUT_REPOSITORY}"
-echo "Actor: ${GITHUB_ACTOR}"
+echo "Actor: ${DERIVED_ACTOR}"
 
 if [[ $INPUT_PUSH == 'true' ]]; then
   if [[ $INPUT_MERGE != 'true' && $GITHUB_EVENT_NAME == 'pull_request' ]]; then
@@ -105,7 +108,7 @@ if [[ $INPUT_PUSH == 'true' ]]; then
     echo "You probably want to run on push to your default branch instead." >&2
   else
     echo "Pushing to branch..."
-    REMOTE_REPO="https://${GITHUB_ACTOR}:${INPUT_GITHUB_TOKEN}@${GITHUB_DOMAIN}/${INPUT_REPOSITORY}.git"
+    REMOTE_REPO="https://${DERIVED_ACTOR}:${INPUT_GITHUB_TOKEN}@${GITHUB_DOMAIN}/${INPUT_REPOSITORY}.git"
     git pull "$REMOTE_REPO" "$INPUT_BRANCH"
     git push "$REMOTE_REPO" "HEAD:${INPUT_BRANCH}" --tags
   fi
